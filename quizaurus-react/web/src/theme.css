@@ -148,7 +148,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 12px;
-  margin-bottom: 20px;
+  margin-bottom: 8px;
   flex: 1;
 }
 
@@ -214,9 +214,9 @@
 
 /* Explanation */
 .quiz-explanation {
-  padding: 16px 18px;
+  padding: 8px 16px;
   border-radius: 12px;
-  margin-bottom: 24px;
+  margin-bottom: 8px;
   line-height: 1.6;
   font-size: 16px;
   min-height: 22px;

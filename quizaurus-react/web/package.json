@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "esbuild src/QuizaurusApp.tsx --bundle --format=esm --outfile=dist/QuizaurusApp.js --minify --tree-shaking=true"
+    "build": "esbuild src/QuizaurusApp.tsx --bundle --format=esm --outfile=dist/QuizaurusWidget.js --minify --tree-shaking=true"
   },
   "keywords": [],
   "author": "",

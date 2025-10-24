@@ -52,38 +52,6 @@ export function QuestionScreen({
         return classes.join(" ");
     };
 
-    const ajaxGet = () => {
-        // make a get request to https://brenda-unharped-superoratorically.ngrok-free.dev/
-        // add ngrok header to not get their wall
-        fetch("https://brenda-unharped-superoratorically.ngrok-free.dev/", {
-            headers: {
-                "ngrok-skip-browser-warning": "true"
-            }
-        })
-            .then(response => response.json())
-            .then(data => {
-                console.log(data);
-            })
-            .catch(error => {
-                console.error(error);
-            });
-    }
-
-    const callTool = async () => {
-        const response = await window.openai.callTool(
-            "prepare-quiz-results",
-            {
-                test: "yoyoyo"
-            }
-        );
-
-        console.log(response)
-        console.log(JSON.stringify(response))
-        console.log(response.structuredContent?["testtest"]:"")
-        console.log(response.result)
-        console.log(JSON.stringify(response.result))
-    }
-
     return (
         <div className="quiz-container">
             <div className="quiz-card">
@@ -104,17 +72,6 @@ export function QuestionScreen({
                         }}
                     />
                 </div>
-
-                <button
-                    onClick={callTool}>
-                    MCP call
-                </button>
-
-                <button
-                    onClick={ajaxGet}
-                >
-                    simple call
-                </button>
 
                 <h2 className="quiz-question">{currentQuestion.question}</h2>
 

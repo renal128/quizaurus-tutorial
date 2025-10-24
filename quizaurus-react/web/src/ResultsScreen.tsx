@@ -5,18 +5,28 @@ interface ResultsScreenProps {
     correctAnswersCount: number;
     totalQuestions: number;
     mistakesCount: number;
-    onStartOver: () => void;
-    onReviewResults: () => void;
-    onMoreQuestions: () => void;
     reviewClicked: boolean;
     moreQuestionsClicked: boolean;
     encouragement: string | null;
     successRate: number | null;
+    onStartOver: () => void;
+    onReviewResults: () => void;
+    onMoreQuestions: () => void;
 }
 
-export function ResultsScreen({ correctAnswersCount, totalQuestions, mistakesCount, onStartOver, onReviewResults, onMoreQuestions, reviewClicked, moreQuestionsClicked, encouragement, successRate }: ResultsScreenProps) {
-    const successPct = successRate ? `${(successRate * 100).toFixed(0)}%` : "...";
-
+export function ResultsScreen({
+    correctAnswersCount,
+    totalQuestions,
+    mistakesCount,
+    reviewClicked,
+    moreQuestionsClicked,
+    encouragement,
+    successRate,
+    onStartOver,
+    onReviewResults,
+    onMoreQuestions
+}: ResultsScreenProps) {
+    const successPct = typeof successRate === 'number' ? `${(successRate * 100).toFixed(0)}%` : "...";
     return (
         <div className="quiz-container">
             <div className="quiz-card quiz-card--results">

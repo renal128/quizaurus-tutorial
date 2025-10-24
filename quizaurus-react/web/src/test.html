@@ -1,8 +1,18 @@
-<html>
+<!-- 
+HTML for testing the UI.
 
+It mocks some of the openai API.
+
+To use it:
+1. `cd` into quizaurus-react/web directory
+2. Run `npm run build` to compile web files
+3. Run `python3 -m http.server 8001` from quizaurus-web directory
+(or use any other way to serve local static files)
+4. Navigate to http://localhost:8001/src/test.html in the browser.
+-->
+<html>
 <body>
     <div id="quizaurus-root"></div>
-    <link rel="stylesheet" href="http://localhost:8001/dist/QuizaurusApp.css">
     <script>
         window.openai = {
             "toolOutput": {
@@ -83,7 +93,8 @@
             }
         }
     </script>
-    <script type="module" src="http://localhost:8001/dist/QuizaurusApp.js"></script>
+    <script type="module" src="http://localhost:8001/dist/QuizaurusWidget.js"></script>
+    <link rel="stylesheet" href="http://localhost:8001/dist/QuizaurusWidget.css">
 </body>
 
 </html>

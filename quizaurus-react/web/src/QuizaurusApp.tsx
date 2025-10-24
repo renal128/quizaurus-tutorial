@@ -4,14 +4,14 @@ import { useToolOutput } from "./openAiHooks";
 import { QuestionScreen } from "./QuestionScreen";
 import { ResultsScreen } from "./ResultsScreen";
 
+export type QuizState = "question" | "feedback" | "results";
+
 export interface Question {
     question: string;
     options: string[];
     correctIndex: number;
     explanation: string;
 }
-
-export type QuizState = "question" | "feedback" | "results";
 
 interface QuizData {
     topic: string;
@@ -59,7 +59,7 @@ function App() {
             setUserAnswers([...userAnswers, index]);
             setQuizState("feedback");
 
-            // Call setWidgetState
+            // Call setWidgetState to make user's answers visible to ChatGPT
             await window.openai.setWidgetState({
                 userAnswers: [...userAnswers, index]
             });
@@ -75,7 +75,7 @@ function App() {
                     correctAnswersCount,
                     totalQuestionsCount: totalQuestions,
                 }
-            ) as { structuredContent: { encouragement: string, successRate: number} };
+            ) as { structuredContent: { encouragement: string, successRate: number } };
             setEncouragement(toolResponse.structuredContent.encouragement);
             setSuccessRate(toolResponse.structuredContent.successRate);
         } else {
@@ -98,7 +98,7 @@ function App() {
 
     const handleReviewResults = async () => {
         setReviewClicked(true);
-        
+
         const results_json = []
         for (let i = 0; i < questions.length; i++) {
             const question = questions[i]
@@ -111,13 +111,14 @@ function App() {
         await window.openai.sendFollowUpMessage({
             prompt: `
                 The user has completed a quiz. Below is a JSON object containing the sequence of questions. 
-                For each question is has the question itself, the correct answer and the user's answer.
+                For each question it has the question itself, the correct answer and the user's answer.
                 Looking at that object, give the user feedback for each question. 
                 If the user's answer matches the correct answer, keep it minimalistic and concise.
                 If the user's answer doesn't match the correct answer, provide a short explanation, including
                 some information that helps understand and memorize the answer.
         
                 Don't mention any technical details about response indices, toolOutput and widgetState in the response.
+                Don't invoke the app.
                 
                 ${JSON.stringify(results_json)}
             `

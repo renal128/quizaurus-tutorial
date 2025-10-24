@@ -5,9 +5,8 @@ package-lock.json
 yarn.lock
 
 # Build outputs
-dist/
 build/
-*.js
+# *.js
 *.js.map
 *.d.ts
 out/
