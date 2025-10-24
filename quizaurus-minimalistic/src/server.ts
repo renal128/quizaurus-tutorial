@@ -4,13 +4,13 @@ import express from 'express';
 import { z } from 'zod';
 
 // Create an MCP server
-const server = new McpServer({
+const mcpServer = new McpServer({
     name: 'quizaurus-server',
     version: '0.0.1'
 });
 
 // Add a tool that receives and validates questions, and starts a quiz
-server.registerTool(
+mcpServer.registerTool(
     'render-quiz',
     {
         title: 'Render Quiz',
@@ -74,7 +74,7 @@ server.registerTool(
 );
 
 // Add a resource that contains the frontend code for rendering the widget
-server.registerResource(
+mcpServer.registerResource(
     'interactive-quiz',
     // resource URI must match `openai/outputTemplate` in the tool definition above
     "ui://widget/interactive-quiz.html", 
@@ -150,7 +150,7 @@ app.post('/mcp', async (req, res) => {
         transport.close();
     });
 
-    await server.connect(transport);
+    await mcpServer.connect(transport);
     await transport.handleRequest(req, res, req.body);
 });
 

@@ -6,13 +6,13 @@ import path from "node:path";
 import { promises as fs } from "node:fs";
 
 // Create an MCP server
-const server = new McpServer({
+const mcpServer = new McpServer({
     name: 'quizaurus-server',
     version: '1.0.0'
 });
 
 // Add a tool that receives and validates questions, and starts a quiz
-server.registerTool(
+mcpServer.registerTool(
     'render-quiz',
     {
         title: 'Render Quiz',
@@ -83,7 +83,7 @@ async function getInlineAsset(filename: string) {
 }
 
 // Add a resource that contains the frontend code for rendering the widget
-server.registerResource(
+mcpServer.registerResource(
     'interactive-quiz',
     // resource URI must match `openai/outputTemplate` in the tool definition above
     "ui://widget/interactive-quiz.html", 
@@ -122,7 +122,7 @@ server.registerResource(
 // It will calculate the % of correct answers and provide an encouraging message.
 // (yes, this could be done on the clien-side, we're doing it on the server just
 // to demo the openai.callTool() functionality)
-server.registerTool(
+mcpServer.registerTool(
   "score-quiz-results",
   {
     title: "Prepare quiz results",
@@ -165,7 +165,7 @@ app.post('/mcp', async (req, res) => {
         transport.close();
     });
 
-    await server.connect(transport);
+    await mcpServer.connect(transport);
     await transport.handleRequest(req, res, req.body);
 });
 
