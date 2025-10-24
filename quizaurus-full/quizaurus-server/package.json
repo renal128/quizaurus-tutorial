@@ -1,0 +1,21 @@
+{
+  "name": "quizaurus-mcp-node",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "MCP server for the Quizaurus app.",
+  "scripts": {
+    "start": "tsx src/server.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.20.1",
+    "express": "5.1.0",
+    "zod": "3.23.8",
+    "zod-to-json-schema": "3.24.1"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  }
+}

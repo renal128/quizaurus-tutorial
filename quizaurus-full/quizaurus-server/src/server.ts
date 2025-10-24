@@ -2,11 +2,13 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import express from 'express';
 import { z } from 'zod';
+import path from "node:path";
+import { promises as fs } from "node:fs";
 
 // Create an MCP server
 const server = new McpServer({
     name: 'quizaurus-server',
-    version: '0.0.1'
+    version: '1.0.0'
 });
 
 // Add a tool that receives and validates questions, and starts a quiz
@@ -73,67 +75,80 @@ server.registerTool(
     }
 );
 
+// A function to a static asset (JS or CSS file) from ../quizaurus-web/dist
+async function getInlineAsset(filename: string) {
+  const assetPath = path.join(path.join("../quizaurus-web/dist"), filename);
+  let asset = await fs.readFile(assetPath, "utf8");
+  return asset;
+}
+
 // Add a resource that contains the frontend code for rendering the widget
 server.registerResource(
     'interactive-quiz',
     // resource URI must match `openai/outputTemplate` in the tool definition above
     "ui://widget/interactive-quiz.html", 
     {},
-    async (uri) => ({
-        contents: [
-            {
-                uri: uri.href,
-                mimeType: "text/html+skybridge",
-                // Below is the code that renders the widget in an iframe.
-                // It shows the first question, let's choose an answer and tells if the answer is correct.
-                text: `
-                <div id="hello-world-root">
-                    <div style="height: 100px">
-                        <button id="refresh-button">Refresh</button>
-                        <div id="question-text"></div>
-                        <button id="option-1">Option 1</button>
-                        <button id="option-2">Option 2</button>
-                        <button id="option-3">Option 3</button>
-                        <button id="option-4">Option 4</button>
-                        <div id="selected-answer"></div>
-                    </div>
+    async (uri) => {
+        const quizaurusJs = await getInlineAsset('QuizaurusApp.js')
+        const quizaurusCss = await getInlineAsset('QuizaurusApp.css')
+        // Here we inject CSS and JS files that we read from server's filesystem.
+        // The JS contains React code that will find the div by id ("quizaurus-root") and
+        // will use it as a root of the React app.
+        //
+        // Note: For production, host CSS/JS on a CDN instead of inlining.
+        // Reference them like: <link rel="stylesheet" href="https://cdn.example.com/style.css">
+        // and: <script src="https://cdn.example.com/app.js"></script>
+        return {
+            contents: [
+                {
+                    uri: uri.href,
+                    mimeType: "text/html+skybridge",
+                    text: `
+                        <div id="quizaurus-root"></div>
+                        <style>
+                            ${quizaurusCss}
+                        </style>
+                        <script type="module">
+                            ${quizaurusJs}
+                        </script>
+                    `
+                }
+            ]
+        }
+    }
+);
 
-                    <script type="module">
-                        const refreshButton = document.querySelector('#refresh-button');
-                        const questionDiv = document.querySelector('#question-text');
-                        const optionButtons = document.querySelectorAll('#option-1, #option-2, #option-3, #option-4');
-                        const selectedAnswerDiv = document.querySelector('#selected-answer');
-                        
-                        const selectOption = (event, isCorrect) => {
-                            const selectedOption = event.target.textContent
-                            selectedAnswerDiv.textContent = selectedOption + ' - ' + isCorrect;
-                            window.openai.setWidgetState({
-                                selectedAnswer: event.target.textContent
-                            })
-                        };
+// One more tool that will be invoked after the user answers the last question.
+// It will calculate the % of correct answers and provide an encouraging message.
+// (yes, this could be done on the clien-side, we're doing it on the server just
+// to demo the openai.callTool() functionality)
+server.registerTool(
+  "score-quiz-results",
+  {
+    title: "Prepare quiz results",
+    description: "Given raw quiz results, calculate stats to present to the user.",
+    inputSchema: {
+      correctAnswersCount: z.number().describe("correct answers count"),
+      totalQuestionsCount: z.number().describe("total questions count"),
+    }
+  },
+  async (args) => {
+    const { correctAnswersCount, totalQuestionsCount } = args;
+    const successRate = 1.0 * correctAnswersCount / totalQuestionsCount;
 
-                        const initialize = () => {
-                            const questions = window.openai.toolOutput?.questions;
-                            if (!questions) return;
+    let encouragement = "Keep practicing!";
+    if (successRate >= 0.9) encouragement = "Excellent!";
+    else if (successRate >= 0.7) encouragement = "Good job!";
+    else if (successRate >= 0.5) encouragement = "Not bad!";
 
-                            const questionData = questions[0];
-                            const correctIndex = questionData.correctIndex;
-                            questionDiv.textContent = questionData.question;
-                            for (let i = 0; i < optionButtons.length; i++) {
-                                optionButtons[i].textContent = questionData.options[i];
-                                optionButtons[i].addEventListener('click', (event) => selectOption(event, i == correctIndex))
-                            }
-                        };
-                        
-                        refreshButton.addEventListener('click', initialize);
-
-                        initialize();
-                    </script>
-                </div>
-                `
-            }
-        ]
-    })
+    return {
+        content: [],
+        structuredContent: {
+          encouragement,
+          successRate,
+        }
+    };
+  }
 );
 
 // Set up Express and HTTP transport
