@@ -1,107 +1,45 @@
 # Quizaurus MCP Server
 
-A minimalistic demo MCP (Model Context Protocol) server for the Quizaurus ChatGPT App, designed to showcase how to build ChatGPT apps.
+A minimalistic demo MCP (Model Context Protocol) server for the Quizaurus ChatGPT App.
 
-## Overview
-
-This project demonstrates how to create a simple MCP server that integrates with ChatGPT. The Quizaurus app is a quiz generator that leverages ChatGPT's capabilities to create and serve interactive quizzes.
-
-## Installation
+## Quick Start
 
 ### Prerequisites
 
-- **Node.js & npm** (v16 or higher)
+- Node.js v16+ (download from [nodejs.org](https://nodejs.org))
 
-### Install Node.js
-
-If you don't have Node.js installed, download it from [nodejs.org](https://nodejs.org). This will also install npm.
-
-You can verify your installation:
-
-```bash
-node --version
-npm --version
-```
-
-### Setup Project Dependencies
-
-Navigate to this directory and install dependencies:
+### Install & Run
 
 ```bash
 npm install
-```
-
-## Running the Server
-
-Start the server with:
-
-```bash
 npm start
 ```
 
-The server will start on `http://localhost:8000/mcp` by default. You should see output similar to:
+The server runs on `http://localhost:8000/mcp`
 
-```
-Demo MCP Server running on http://localhost:8000/mcp
-```
+## Expose to the Web
 
-## Exposing to the Web with ngrok
+Use ngrok to make your local server publicly accessible:
 
-To make your local server accessible from the internet (required for ChatGPT App integration), use **ngrok**.
+1. Create a free account at [ngrok.com](https://ngrok.com)
+2. Install ngrok:
+   ```bash
+   brew install ngrok          # or download from ngrok.com
+   ```
+3. Run ngrok:
+   ```bash
+   ngrok http 8000
+   ```
 
-### Install ngrok
-
-Download from [ngrok.com](https://ngrok.com) or install via Homebrew:
-
-```bash
-brew install ngrok
-```
-
-Verify installation:
-
-```bash
-ngrok --version
-```
-
-### Create a Public URL
-
-1. Ensure your server is running (`npm start`)
-2. In another terminal, run:
-
-```bash
-ngrok http 8000
-```
-
-This will create a public URL that looks like: `https://xxxx-xx-xxx-xxx-xx.ngrok.io`
-
-Keep this terminal open while testing. The URL will change each time unless you have a paid ngrok account.
-
-### Test the Endpoint
-
-You can test your exposed endpoint:
-
-```bash
-curl https://xxxx-xx-xxx-xxx-xx.ngrok.io/mcp
-```
-
----
+This creates a public URL like `https://xxxx-xx-xxx-xxx-xx.ngrok.io/mcp`
 
 ## Adding to ChatGPT
 
-_Instructions on how to add this app to ChatGPT and test it will be added here._
-
----
-
-## Project Structure
-
-```
-src/
-├── server.ts      # Main MCP server implementation
-```
+_Instructions coming soon._
 
 ## Technologies
 
-- **MCP (Model Context Protocol)** - Communication protocol between ChatGPT and the server
-- **Express.js** - HTTP server
-- **TypeScript** - Type-safe development
-- **Zod** - Schema validation
+- MCP (Model Context Protocol)
+- Express.js
+- TypeScript
+- Zod
