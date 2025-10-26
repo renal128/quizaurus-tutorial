@@ -2,6 +2,10 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import express from 'express';
 import { z } from 'zod';
+import { fileURLToPath } from "node:url";
+import { dirname } from "node:path";
+import path from 'path';
+import cors from 'cors';
 
 // Create an MCP server
 const mcpServer = new McpServer({
@@ -9,7 +13,7 @@ const mcpServer = new McpServer({
     version: '0.0.1'
 });
 
-// Add a tool that receives and validates questions, and starts a quiz
+// Add the tool that receives and validates questions, and starts a quiz
 mcpServer.registerTool(
     'render-quiz',
     {
@@ -76,61 +80,19 @@ mcpServer.registerTool(
 // Add a resource that contains the frontend code for rendering the widget
 mcpServer.registerResource(
     'interactive-quiz',
-    // resource URI must match `openai/outputTemplate` in the tool definition above
-    "ui://widget/interactive-quiz.html", 
+    "ui://widget/interactive-quiz.html", // must match `openai/outputTemplate` in the tool definition above
     {},
     async (uri) => ({
         contents: [
             {
                 uri: uri.href,
                 mimeType: "text/html+skybridge",
-                // Below is the code that renders the widget in an iframe.
-                // It shows the first question, let's choose an answer and tells if the answer is correct.
-                text: `
-                <div id="hello-world-root">
-                    <div style="height: 100px">
-                        <button id="refresh-button">Refresh</button>
-                        <div id="question-text"></div>
-                        <button id="option-1">Option 1</button>
-                        <button id="option-2">Option 2</button>
-                        <button id="option-3">Option 3</button>
-                        <button id="option-4">Option 4</button>
-                        <div id="selected-answer"></div>
-                    </div>
-
-                    <script type="module">
-                        const refreshButton = document.querySelector('#refresh-button');
-                        const questionDiv = document.querySelector('#question-text');
-                        const optionButtons = document.querySelectorAll('#option-1, #option-2, #option-3, #option-4');
-                        const selectedAnswerDiv = document.querySelector('#selected-answer');
-                        
-                        const selectOption = (event, isCorrect) => {
-                            const selectedOption = event.target.textContent
-                            selectedAnswerDiv.textContent = selectedOption + ' - ' + isCorrect;
-                            window.openai.setWidgetState({
-                                selectedAnswer: event.target.textContent
-                            })
-                        };
-
-                        const initialize = () => {
-                            const questions = window.openai.toolOutput?.questions;
-                            if (!questions) return;
-
-                            const questionData = questions[0];
-                            const correctIndex = questionData.correctIndex;
-                            questionDiv.textContent = questionData.question;
-                            for (let i = 0; i < optionButtons.length; i++) {
-                                optionButtons[i].textContent = questionData.options[i];
-                                optionButtons[i].addEventListener('click', (event) => selectOption(event, i == correctIndex))
-                            }
-                        };
-                        
-                        refreshButton.addEventListener('click', initialize);
-
-                        initialize();
-                    </script>
-                </div>
-                `
+                // Below is the HTML code for the widget. 
+                // It creates a root div and loads the script from src/dist/script.js, which finds
+                // the root div by its ID and renders the widget components in it.
+                text: `<div id="quiz-app-root">
+                           <script type="module" src="http://localhost:8000/assets/script.js"></script>
+                       </div>`
             }
         ]
     })
@@ -153,6 +115,12 @@ app.post('/mcp', async (req, res) => {
     await mcpServer.connect(transport);
     await transport.handleRequest(req, res, req.body);
 });
+
+// Serve static assets.
+// dist/script.js will be available at /assets/script.js
+const filename = fileURLToPath(import.meta.url);
+const assetsPath = path.join(dirname(filename), 'dist');
+app.use('/assets', cors(), express.static(assetsPath));
 
 const port = parseInt(process.env.PORT || '8000');
 app.listen(port, () => {
