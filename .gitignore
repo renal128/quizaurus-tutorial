@@ -6,7 +6,7 @@ yarn.lock
 
 # Build outputs
 build/
-*.js
+# *.js
 *.js.map
 *.d.ts
 out/
