@@ -19,12 +19,13 @@ mcpServer.registerTool(
     {
         title: 'Render Quiz',
         description: `
-            Create and render a quiz. 
             The tool expects to receive high-quality single-answer questions 
             that match the schema in input/structuredContent: 
             each item needs { question, options[], correctIndex, explanation }.
             Use 5–10 questions unless the user requests a specific 
             number of questions (but make sure that it's under 50).
+            The questions will be shown to the user by the tool as an interactive quiz.
+            Do not print the questions or answers in chat when you use this tool.
             Do not provide any sensitive or personal user information to this tool.`,
         _meta: {
             "openai/outputTemplate": "ui://widget/interactive-quiz.html", // <- hook to the resource
