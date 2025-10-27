@@ -1,17 +1,17 @@
 const root = document.querySelector('#quiz-app-root');
 
-// Create HTML layout
+// create HTML layout
 root.innerHTML = `
     <div style="height: 200px; background-color: #aaaaaa; padding: 8px;">
         <button id="start-quiz">Start Quiz</button>
         <div id="question-text"></div>
-        <button id="option-1" style="margin: 4px;" hidden="false">Option 1</button>
-        <button id="option-2" style="margin: 4px;" hidden="false">Option 2</button>
-        <button id="option-3" style="margin: 4px;" hidden="false">Option 3</button>
-        <button id="option-4" style="margin: 4px;" hidden="false">Option 4</button>
+        <button id="option-1" style="margin: 4px;">Option 1</button>
+        <button id="option-2" style="margin: 4px;">Option 2</button>
+        <button id="option-3" style="margin: 4px;">Option 3</button>
+        <button id="option-4" style="margin: 4px;">Option 4</button>
         <div id="selected-answer"></div>
-        <button id="next-question" style="margin: 4px;" disabled="true" hidden="true">Next Question</button>
-        <button id="review-results" style="margin: 4px;" hidden="true" disabled="true">Review Results</button>
+        <button id="next-question" style="margin: 4px;" disabled hidden>Next Question</button>
+        <button id="review-results" style="margin: 4px;" disabled hidden>Review Results</button>
     </div>`;
 
 const startQuizButton = document.querySelector('#start-quiz');
@@ -27,12 +27,14 @@ let currentQuestionIndex = window.openai.widgetState?.currentQuestionIndex ?? 0;
 
 // update UI based on the current state
 function refreshUI() {
-// const refreshUI = () => {
     // Read questions from window.openai.toolOutput - this is the output of the tool defined in server.ts
     const questions = window.openai.toolOutput?.questions;
     // Initially the widget will be rendered with empty toolOutput. 
     // It will be populated when ChatGPT receives toolOutput from our tool.
-    if (!questions) return; 
+    if (!questions) {
+        console.log("Questions have not yet been provided. Try again in a few sec.")
+        return; 
+    }
     
     startQuizButton.hidden = true;
     reviewResultsButton.hidden = false;
@@ -40,20 +42,21 @@ function refreshUI() {
     optionButtons.forEach((b) => { b.hidden = false; });
     
     const questionData = questions[currentQuestionIndex];
-    const isAnswerSelected = currentQuestionIndex === Object.keys(selectedAnswers).length - 1;
+    const currentQuestionAnswered = currentQuestionIndex in selectedAnswers;
     
     questionDiv.textContent = questionData.question;
     optionButtons.forEach((b, i) => { b.textContent = questionData.options[i] });
 
-    if (isAnswerSelected) {
-        nextQuestionButton.disabled = currentQuestionIndex === questions.length - 1;
-        reviewResultsButton.disabled = currentQuestionIndex !== questions.length - 1;
-        optionButtons.forEach((b) => { b.disabled = isAnswerSelected; });
-        const isCorrect = questionData.options[questionData.correctIndex] == selectedAnswers[currentQuestionIndex]
+    if (currentQuestionAnswered) {
+        const isLastQuestion = currentQuestionIndex === questions.length - 1;
+        nextQuestionButton.disabled = isLastQuestion;
+        reviewResultsButton.disabled = !isLastQuestion;
+        optionButtons.forEach((b) => { b.disabled = true; });
+        const isCorrect = questionData.options[questionData.correctIndex] === selectedAnswers[currentQuestionIndex]
         selectedAnswerDiv.textContent = `Your answer: ${selectedAnswers[currentQuestionIndex]} [${isCorrect?'CORRECT':'WRONG'}]`;
     } else {
         nextQuestionButton.disabled = true;
-        optionButtons.forEach((b) => { b.disabled = isAnswerSelected; });
+        optionButtons.forEach((b) => { b.disabled = false; });
         selectedAnswerDiv.textContent = 'Choose an answer';
     }
 };
