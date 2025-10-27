@@ -5,10 +5,10 @@ root.innerHTML = `
     <div style="height: 200px; background-color: #aaaaaa; padding: 8px;">
         <button id="start-quiz">Start Quiz</button>
         <div id="question-text"></div>
-        <button id="option-1" style="margin: 4px;">Option 1</button>
-        <button id="option-2" style="margin: 4px;">Option 2</button>
-        <button id="option-3" style="margin: 4px;">Option 3</button>
-        <button id="option-4" style="margin: 4px;">Option 4</button>
+        <button id="option-1" style="margin: 4px;" hidden>Option 1</button>
+        <button id="option-2" style="margin: 4px;" hidden>Option 2</button>
+        <button id="option-3" style="margin: 4px;" hidden>Option 3</button>
+        <button id="option-4" style="margin: 4px;" hidden>Option 4</button>
         <div id="selected-answer"></div>
         <button id="next-question" style="margin: 4px;" disabled hidden>Next Question</button>
         <button id="review-results" style="margin: 4px;" disabled hidden>Review Results</button>
